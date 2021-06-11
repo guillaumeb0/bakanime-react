@@ -1,7 +1,11 @@
 import Header from './App/Header';
+import HeroBanner from "./App/HeroBanner";
 
 const App = () => (
-  <Header />
+  <>
+    <Header/>
+    <HeroBanner/>
+  </>
 )
 
 
