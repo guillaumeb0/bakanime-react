@@ -1,15 +1,17 @@
+import { useState } from "react"
+
 import styled from 'styled-components'
 import ReactPlayer from 'react-player'
 import ReactModal from 'react-modal'
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+
 
 import kimetsuImg from '../img/kimetsu_hd.jpg'
 
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import {useState} from "react";
-
 const Section = styled.section`
-  background-image: linear-gradient(to right, #101010, transparent 33%),
-  linear-gradient(to bottom right, transparent, transparent, #101010 95%);
+  position: relative;
+  background-image: linear-gradient(to right, ${props => props.theme.background}, transparent 33%),
+  linear-gradient(to bottom right, transparent, transparent, ${props => props.theme.background} 95%);
 `
 
 const Img = styled.img`
@@ -61,23 +63,19 @@ const Span = styled.span`
   font-size: .9em;
 `
 
-const StyledReactModal = styled(ReactModal)`
-  border: 1px solid red;
-`
-
 const HeroBanner = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   return (
     <Section>
-      <Img src={kimetsuImg} alt="Demon slayer image"/>
+      <Img src={kimetsuImg} alt="Demon slayer image" />
       <Content>
         <H1>
           Kimetsu no Yaiba
         </H1>
 
         <TrailerCTA>
-          <StyledPlayArrowIcon/>
+          <StyledPlayArrowIcon />
           <Span onClick={() => setIsModalOpen(true)}>Play trailer</Span>
         </TrailerCTA>
       </Content>
@@ -92,10 +90,11 @@ const HeroBanner = () => {
             border: 0,
             top: '50%',
             left: '50%',
-            transform: 'translate(-50%, -50%)'
+            transform: 'translate(-50%, -50%)',
+            zIndex: 9999
           }
         }}>
-        <ReactPlayer url="https://www.youtube.com/embed/PrZ0O8Qp18s" controls playing/>
+        <ReactPlayer url="https://www.youtube.com/embed/PrZ0O8Qp18s" controls playing />
       </ReactModal>
     </Section>
   )
