@@ -25,7 +25,7 @@ const HeaderItems = styled.div`
   font-size: 12px;
 `
 
-const Header = () => {
+const Header = ({searchBarValue, setSearchBarValue}) => {
   return <MediaQueryWrapper>
     {({isVerySmallScreen}) =>
       <StyledHeader>
@@ -38,7 +38,7 @@ const Header = () => {
           </HeaderItems>
         }
 
-        <SearchBar />
+        <SearchBar value={searchBarValue} setValue={setSearchBarValue} />
 
         <MobileMenu />
       </StyledHeader>}

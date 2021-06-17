@@ -37,10 +37,10 @@ const StyledSearchIcon = styled(SearchIcon)`
   margin-right: 0.375em;
 `
 
-const SearchBar = () => (
+const SearchBar = ({value, setValue}) => (
   <Wrapper>
     <Bar>
-      <Input type="text" placeholder="Filter animes..." />
+      <Input type="text" placeholder="Filter animes..." value={value} onChange={setValue}/>
       <StyledSearchIcon />
     </Bar>
   </Wrapper>

@@ -1,8 +1,4 @@
-import { useState } from "react"
-
 import styled from 'styled-components'
-import ReactPlayer from 'react-player'
-import ReactModal from 'react-modal'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
 
@@ -10,15 +6,27 @@ import kimetsuImg from '../img/kimetsu_hd.jpg'
 
 const Section = styled.section`
   position: relative;
-  background-image: linear-gradient(to right, ${props => props.theme.background}, transparent 33%),
-  linear-gradient(to bottom right, transparent, transparent, ${props => props.theme.background} 95%);
+  z-index: 0;
+
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    background-image: linear-gradient(to right, ${props => props.theme.background}, transparent 33%),
+    linear-gradient(to bottom right, transparent, transparent, ${props => props.theme.background} 95%);
+  }
 `
 
 const Img = styled.img`
   position: relative;
   display: block;
   width: 100%;
-  z-index: -1;
+  height: 38.3vw;
 `
 
 const Content = styled.div`
@@ -31,6 +39,7 @@ const Content = styled.div`
   top: 0;
   left: 0;
   margin-top: -5vw;
+  z-index: 2;
 `
 
 const H1 = styled.h1`
@@ -63,41 +72,20 @@ const Span = styled.span`
   font-size: .9em;
 `
 
-const HeroBanner = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+const HeroBanner = ({playTrailer}) => (
+  <Section>
+    <Img src={kimetsuImg} alt="Demon slayer image" />
+    <Content>
+      <H1>
+        Kimetsu no Yaiba
+      </H1>
 
-  return (
-    <Section>
-      <Img src={kimetsuImg} alt="Demon slayer image" />
-      <Content>
-        <H1>
-          Kimetsu no Yaiba
-        </H1>
-
-        <TrailerCTA>
-          <StyledPlayArrowIcon />
-          <Span onClick={() => setIsModalOpen(true)}>Play trailer</Span>
-        </TrailerCTA>
-      </Content>
-      <ReactModal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        style={{
-          content: {
-            width: 'fit-content',
-            height: 'fit-content',
-            padding: 0,
-            border: 0,
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 9999
-          }
-        }}>
-        <ReactPlayer url="https://www.youtube.com/embed/PrZ0O8Qp18s" controls playing />
-      </ReactModal>
-    </Section>
-  )
-}
+      <TrailerCTA onClick={() => playTrailer({url: 'https://www.youtube.com/embed/PrZ0O8Qp18s'})}>
+        <StyledPlayArrowIcon />
+        <Span>Play trailer</Span>
+      </TrailerCTA>
+    </Content>
+  </Section>
+)
 
 export default HeroBanner
