@@ -4,10 +4,10 @@ import styled from 'styled-components'
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
-import CardLoader from './Slider/CardLoader';
-import AnimeCard from './Slider/AnimeCard';
-import MangaCard from './Slider/MangaCard';
-import { getRangeForDisplay, getRangeForPreload } from '../utils/range';
+import CardLoader from './Row/CardLoader';
+import AnimeCard from './Row/AnimeCard';
+import MangaCard from './Row/MangaCard';
+import { getInitialRanges, getNextRanges, getPreviousRanges } from '../utils/range';
 
 const Section = styled.section`
   padding-bottom: 1%;
@@ -53,29 +53,9 @@ const SliderContent = styled.div`
   align-items: flex-start;
   position: relative;
   overflow-x: visible;
-  transition: transform .5s ease-out;
 
-  ${props => props.translateX && `transform: translateX(${props.translateX});`} // ${props => !props.neverScrolled && props.withInfiniteScroll && 'transform: translateX(-100%);'}
-          // &:before {
-          //   content: '';
-          //   width: 2.7vw;
-                  //   background-color: ${props => props.theme.background};
-          //   height: 100%;
-          //   position: absolute;
-          //   z-index: 1;
-          //   transform: translateX(92vw);
-          // }
-          //
-          // &:after {
-          //   content: '';
-          //   width: 2.8vw;
-                  //   background-color: ${props => props.theme.background};
-          //   height: 100%;
-          //   position: absolute;
-          //   right: 0;
-          //   transform: translateX(97.5vw);
-          // }
-          //width: 95%;
+  ${props => props.isScrolling && 'transition: transform .5s ease-out;'}
+  ${props => props.translateX && `transform: translateX(${props.translateX});`}
 `
 
 
@@ -104,43 +84,14 @@ const toMangaCard = ({item, keySuffix}) => (
 
 const getContentLoader = () => Array.from({length: 6}, (_, i) => <CardLoader key={i} />)
 
-const getRange = ({start, length, limit}) => {
-  const rangeForDisplay = getRangeForDisplay({start, length, limit})
-  const rangeForDisplayEnd = rangeForDisplay[rangeForDisplay.length - 1]
-  const rangeForPreload = getRangeForPreload({start: rangeForDisplayEnd + 1, length, limit})
-  return rangeForDisplay.concat(rangeForPreload)
-}
-
-const getRange2 = ({start, length, limit}) => {
-  const currDisplayedRange = getRangeForDisplay({start, length, limit})
-  const currDisplayedRangeEnd = currDisplayedRange[currDisplayedRange.length - 1]
-
-  let nextDisplayedRange
-  if (currDisplayedRangeEnd === limit) {
-    nextDisplayedRange = getRangeForDisplay({start: 0, length, limit})
-  } else {
-    nextDisplayedRange = getRangeForDisplay({start: currDisplayedRangeEnd + 1, length, limit})
-  }
-  const nextDisplayedRangeEnd = nextDisplayedRange[nextDisplayedRange.length - 1]
-
-  let nextPreloadedRange
-  if (nextDisplayedRangeEnd === limit) {
-    nextPreloadedRange = getRangeForPreload({start: 0, length, limit})
-  } else {
-    nextPreloadedRange = getRangeForPreload({start: nextDisplayedRangeEnd + 1, length, limit})
-  }
-  return nextDisplayedRange.concat(nextPreloadedRange)
-}
-
 const Row = ({title, items, displayedCardCount, playTrailer, className}) => {
-  // const [neverScrolled, setNeverScrolled] = useState(true)
-  // const [currentFirstDisplayedCard, setCurrentFirstDisplayedCard] = useState(0)
-  // const [currPage, setCurrPage] = useState(0)
-  // const [isScrolling, setIsScrolling] = useState(false)
-  // const [listTranslateX, setListTranslateX] = useState(null)
+  const [neverScrolled, setNeverScrolled] = useState(true)
+  const [isScrolling, setIsScrolling] = useState(false)
+  const [sliderContentTranslateX, setSliderContentTranslateX] = useState('0px')
   const [currIndex, setCurrIndex] = useState(null)
-  const [_items, _setItems] = useState(null)
-  // const [nextRange, setNextRange] = useState(null)
+  const [preloadedBeforeRange, setPreloadedBeforeRange] = useState(null)
+  const [displayedRange, setDisplayedRange] = useState(null)
+  const [preloadedAfterRange, setPreloadedAfterRange] = useState(null)
 
   const sliderContentRef = useRef(null)
 
@@ -148,12 +99,81 @@ const Row = ({title, items, displayedCardCount, playTrailer, className}) => {
     if (!items) return
 
     setCurrIndex(0)
-    _setItems(getRange({start: 0, length: displayedCardCount, limit: items.length - 1}).map(i => items[i]))
-  }, [items])
+    const {displayedRange, preloadedAfterRange} = getInitialRanges({
+      start: 0,
+      length: displayedCardCount,
+      limit: items.length - 1
+    })
+    setDisplayedRange(displayedRange)
+    setPreloadedAfterRange(preloadedAfterRange)
+  }, [items, displayedCardCount])
+
+  const navigateForward = () => {
+    neverScrolled && setNeverScrolled(false)
+    if (isScrolling) return
+    setIsScrolling(true)
+
+    const cardWidth = sliderContentRef.current.offsetWidth / displayedCardCount
+    const cardOffset = cardWidth * (((preloadedBeforeRange && preloadedBeforeRange.length) || 0) + preloadedAfterRange.length)
+
+    setSliderContentTranslateX(`-${cardOffset}px`)
+
+    setTimeout(() => {
+      const {futurePreloadedBeforeRange, futureDisplayedRange, futurePreloadedAfterRange} = getNextRanges({
+        start: currIndex,
+        length: displayedCardCount,
+        limit: items.length - 1
+      })
+      setCurrIndex(futureDisplayedRange[0])
+      setPreloadedBeforeRange(futurePreloadedBeforeRange)
+      setDisplayedRange(futureDisplayedRange)
+      setPreloadedAfterRange(futurePreloadedAfterRange)
+      setIsScrolling(false)
+
+      const cardOffset = cardWidth * futurePreloadedBeforeRange.length
+      setSliderContentTranslateX(`-${cardOffset}px`)
+    }, 600)
+  }
+
+  const navigateBackward = () => {
+    if (isScrolling) return
+    setIsScrolling(true)
+
+    setSliderContentTranslateX(`0`)
+
+    setTimeout(() => {
+      const {previousRange, currentRange, nextRange} = getPreviousRanges({
+        start: currIndex,
+        length: displayedCardCount,
+        limit: items.length - 1
+      })
+      setCurrIndex(currentRange[0])
+      setPreloadedBeforeRange(previousRange)
+      setDisplayedRange(currentRange)
+      setPreloadedAfterRange(nextRange)
+
+      const cardWidth = sliderContentRef.current.offsetWidth / displayedCardCount
+      const cardOffset = cardWidth * previousRange.length
+      setSliderContentTranslateX(`-${cardOffset}px`)
+
+      setIsScrolling(false)
+    }, 600)
+  }
 
   let cards
-  if (_items) {
-    cards = _items.map(item => toAnimeCard({item: item, playTrailer}))
+  if (displayedRange) {
+    let range
+    if (preloadedBeforeRange) {
+      range = preloadedBeforeRange.concat(displayedRange)
+    } else {
+      range = displayedRange
+    }
+
+    if (preloadedAfterRange) {
+      range = range.concat(preloadedAfterRange)
+    }
+
+    cards = range.map(i => items[i]).map(item => toAnimeCard({item: item, playTrailer}))
   } else {
     cards = getContentLoader()
   }
@@ -165,67 +185,13 @@ const Row = ({title, items, displayedCardCount, playTrailer, className}) => {
         {
           items && items.length > 6 &&
           <div>
-            <NavigationIcon as={NavigateBeforeIcon} onClick={() => console.log('back')} />
-            <NavigationIcon as={NavigateNextIcon} onClick={() => {
-
-
-              const nextRange = getRange2({start: currIndex, length: displayedCardCount, limit: items.length - 1})
-              setCurrIndex(nextRange[0])
-              _setItems(nextRange.map(i => items[i]))
-
-              // const currRange = getRange({start: currIndex, length: displayedCardCount, limit: items.length - 1})
-              // const currRangeEnd = currRange[currRange.length - 1]
-              //
-              // let nextRange
-              // if (currRangeEnd === items.length - 1) {
-              //   nextRange = getRange({start: 0, length: displayedCardCount, limit: items.length - 1})
-              // } else {
-              //   nextRange = getRange({
-              //     start: currRangeEnd + 1,
-              //     length: displayedCardCount,
-              //     limit: items.length - 1
-              //   })
-              // }
-              //
-              // const nextRangeEnd = nextRange[nextRange.length - 1]
-              //
-              // let nextNextRange
-              // if (nextRangeEnd === items.length - 1) {
-              //   nextNextRange = getRange({start: 0, length: displayedCardCount, limit: items.length - 1})
-              // } else {
-              //   nextNextRange = getRange({
-              //     start: nextRangeEnd + 1,
-              //     length: displayedCardCount,
-              //     limit: items.length - 1
-              //   })
-              // }
-              //
-              // setCurrIndex(nextRange[0])
-              // console.log('nextRange', nextRange)
-              // console.log('nextNextRange', nextNextRange)
-
-              // const nextRange = getRange({
-              //   start: currRange.end + 1,
-              //   length: displayedCardCount,
-              //   limit: items.length - 1
-              // })
-              // let nextNextRange
-              // if (nextRange.start === items.length - displayedCardCount && nextRange.end === items.length - 1) {
-              //   nextNextRange = getRange({start: 0, length: displayedCardCount, limit: items.length - 1})
-              // } else {
-              //   nextNextRange = getRange({
-              //     start: nextRange.end + 1,
-              //     length: displayedCardCount,
-              //     limit: items.length - 1
-              //   })
-              // }
-
-            }} />
+            {!neverScrolled && <NavigationIcon as={NavigateBeforeIcon} onClick={navigateBackward} />}
+            <NavigationIcon as={NavigateNextIcon} onClick={navigateForward} />
           </div>
         }
       </Header>
       <Slider>
-        <SliderContent ref={sliderContentRef}>
+        <SliderContent ref={sliderContentRef} isScrolling={isScrolling} translateX={sliderContentTranslateX}>
           {cards}
         </SliderContent>
       </Slider>

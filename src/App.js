@@ -92,9 +92,7 @@ const App = () => {
       <HeroBanner playTrailer={playTrailer} />
       <FirstSlider
         title="Today releases"
-        // TODO: undo this. Only for testing
-        // items={todayAnimeReleasesItems && filterFn(todayAnimeReleasesItems)}
-        items={todayAnimeReleasesItems && airingAnimeItems && filterFn(todayAnimeReleasesItems.concat([airingAnimeItems[6]]))}
+        items={todayAnimeReleasesItems && filterFn(todayAnimeReleasesItems)}
         displayedCardCount={6}
         playTrailer={playTrailer} />
       {/*<Slider*/}
