@@ -58,7 +58,15 @@ export const getPreviousRangeForPreload = ({end, length, limit}) => {
   }
 }
 
-export const getInitialRanges = ({start, length, limit}) => {
+export const getInitialRanges = ({start, length, items}) => {
+  if (length >= items.length) {
+    return {
+      displayedRange: Array.from({length: items.length}, (_, i) => i),
+      preloadedAfterRange: []
+    }
+  }
+
+  const limit = items.length - 1
   const displayedRange = getNextRangeForDisplay({start, length, limit})
   const displayedRangeEnd = displayedRange[displayedRange.length - 1]
   const preloadedAfterRange = getNextRangeForPreload({start: displayedRangeEnd + 1, length, limit})

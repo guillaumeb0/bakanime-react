@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
-
 import kimetsuImg from '../img/kimetsu_hd.jpg'
 
 const Section = styled.section`

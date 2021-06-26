@@ -12,7 +12,8 @@ const Img = styled.img`
 `
 
 const Description = styled.div`
-  display: none;
+  opacity: 0;
+  display: grid;
   grid-template-rows: repeat(3, 1fr);
   justify-items: center;
   position: absolute;
@@ -29,7 +30,8 @@ const Description = styled.div`
   border-radius: 2%;
 
   ${StyledCard}:hover &, ${StyledCard}:active & {
-    display: grid;
+    opacity: 1;
+    transition: opacity .3s .5s;
   }
 `
 
@@ -45,9 +47,9 @@ const Text = styled.div`
   grid-row: 3;
 `
 
-const MangaCard = ({title, imageUrl, startDate}) => (
+const MangaCard = ({title, imageUrl, startDate, ...restProps}) => (
   <>
-    <StyledCard>
+    <StyledCard {...restProps}>
       <Img src={imageUrl} alt={`${title}_avatar`} />
       <Description>
         <Title>{title}</Title>

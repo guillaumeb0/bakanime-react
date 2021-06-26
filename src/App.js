@@ -9,7 +9,7 @@ import ReactPlayer from 'react-player'
 import theme from './App/theme'
 import Header from './App/Header'
 import HeroBanner from "./App/HeroBanner"
-import Row from './App/Row'
+import Row from './App/Row';
 
 const currentDayName = (() => new Date().toLocaleDateString('en-GB', {weekday: 'long'}))()
 
@@ -22,27 +22,18 @@ const fetchData = async (url, responseKey) => {
   }
 }
 
-const calculateCurrentCardCount = () => {
-  if (window.innerWidth < 294) {
-    return 3
-  } else if (window.innerWidth >= 294 && window.innerWidth < 628) {
-    return 4
-  } else if (window.innerWidth >= 628 && window.innerWidth < 888) {
-    return 5
-  } else {
-    return 6
-  }
-}
-
 const GlobalStyle = createGlobalStyle`
   body {
-    overflow-x: hidden;
     background-color: ${props => props.theme.background};
     ${props => props.isNoScroll && 'overflow-y: hidden;'}
   }
+  
+  #root {
+    overflow-x: hidden;
+  }
 `
 
-const FirstSlider = styled(Row)`
+const FirstRow = styled(Row)`
   position: relative;
   margin-top: -7vw;
 `
@@ -90,26 +81,22 @@ const App = () => {
       <GlobalStyle isNoScroll={isModalOpen} />
       <Header searchBarValue={searchBarValue} setSearchBarValue={(e) => setSearchBarValue(e.target.value)} />
       <HeroBanner playTrailer={playTrailer} />
-      <FirstSlider
+      <FirstRow
         title="Today releases"
         items={todayAnimeReleasesItems && filterFn(todayAnimeReleasesItems)}
-        displayedCardCount={6}
         playTrailer={playTrailer} />
-      {/*<Slider*/}
-      {/*  title="Airing animes"*/}
-      {/*  items={airingAnimeItems && filterFn(airingAnimeItems)}*/}
-      {/*  displayedCardCount={6}*/}
-      {/*  playTrailer={playTrailer} />*/}
-      {/*<Slider*/}
-      {/*  title="Top upcoming"*/}
-      {/*  items={topUpcomingAnimeItems && filterFn(topUpcomingAnimeItems)}*/}
-      {/*  displayedCardCount={6}*/}
-      {/*  playTrailer={playTrailer} />*/}
-      {/*<Slider*/}
-      {/*  title="Top Manga"*/}
-      {/*  items={topMangaItems && filterFn(topMangaItems)}*/}
-      {/*  displayedCardCount={6}*/}
-      {/*  playTrailer={playTrailer} />*/}
+      <Row
+        title="Airing animes"
+        items={airingAnimeItems && filterFn(airingAnimeItems)}
+        playTrailer={playTrailer} />
+      <Row
+        title="Top upcoming"
+        items={topUpcomingAnimeItems && filterFn(topUpcomingAnimeItems)}
+        playTrailer={playTrailer} />
+      <Row
+        title="Top Manga"
+        items={topMangaItems && filterFn(topMangaItems)}
+        playTrailer={playTrailer} />
       <ReactModal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}

@@ -16,7 +16,8 @@ const Img = styled.img`
 `
 
 const Description = styled.div`
-  display: none;
+  opacity: 0;
+  display: grid;
   grid-template-rows: repeat(3, 1fr);
   justify-items: center;
   position: absolute;
@@ -32,8 +33,10 @@ const Description = styled.div`
   backdrop-filter: blur(2px);
   border-radius: 2%;
 
+
   ${StyledCard}:hover &, ${StyledCard}:active & {
-    display: grid;
+    opacity: 1;
+    transition: opacity .3s .5s;
   }
 `
 
