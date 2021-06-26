@@ -36,25 +36,25 @@ export const getNextRangeForPreload = ({start, length, limit}) => {
   }
 
   if (start + length - 1 < limit) {
-    return Array.from({length: length}, (_, i) => start + i)
+    return Array.from({length: length + 1}, (_, i) => start + i)
   }
 
   if (start + length - 1 >= limit && start <= limit) {
-    return Array.from({length: limit - start + 1}, (_, i) => start + i)
+    return [...Array.from({length: limit - start + 1}, (_, i) => start + i), 0]
   }
 
   if (start > limit) {
-    return Array.from({length: length}, (_, i) => i)
+    return Array.from({length: length + 1}, (_, i) => i)
   }
 }
 
 export const getPreviousRangeForPreload = ({end, length, limit}) => {
   if (end === -1) {
-    return Array.from({length}, (_, i) => limit - length + 1 + i)
-  } else if (end < length - 1) {
-    return Array.from({length: end + 1}, (_, i) => i)
+    return Array.from({length: length + 1}, (_, i) => limit - length + i)
+  } else if (end <= length - 1) {
+    return [limit, ...Array.from({length: end + 1}, (_, i) => i)]
   } else {
-    return Array.from({length}, (_, i) => end - length + 1 + i)
+    return Array.from({length: length + 1}, (_, i) => end - length + i)
   }
 }
 

@@ -122,7 +122,7 @@ const DesktopRow = ({title, items, displayedCardCount, playTrailer}) => {
     if (isScrolling) return
     setIsScrolling(true)
 
-    const cardOffset = `calc(-1 * calc(100% / ${displayedCardCount}) * ${(((preloadedBeforeRange && preloadedBeforeRange.length) || 0) + preloadedAfterRange.length)})`
+    const cardOffset = `calc(-1 * calc(100% / ${displayedCardCount}) * ${(((preloadedBeforeRange && preloadedBeforeRange.length) || 0) + preloadedAfterRange.length - 1)})`
 
     setSliderContentTranslateX(`${cardOffset}`)
 
@@ -156,7 +156,7 @@ const DesktopRow = ({title, items, displayedCardCount, playTrailer}) => {
     if (isScrolling) return
     setIsScrolling(true)
 
-    setSliderContentTranslateX(`0`)
+    setSliderContentTranslateX(`calc(-1 * calc(100% / ${displayedCardCount}))`)
 
     const updateSliderItems = (e) => {
       // Don't run this code if `transitionend` event comes from a child.
